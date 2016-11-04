@@ -1,6 +1,8 @@
 from lxml import html
 import requests
 import json
+import time
+import sys
 
 """
 Debates
@@ -16,6 +18,7 @@ class Debates():
     """
     def __init__(self):
         self.data = None
+        self.all()
 
     """
     all
@@ -36,8 +39,8 @@ class Debates():
 
         # Throw error if lengths are off.
         if len(dates) != len(debates):
-            # Throw error.
-            pass
+            raise Exception('Sorry - something went wrong! Please open an issue at https://github.com/jayrav13/presidency/issues and include the following timestamp: %s' % str(time.time()))
+            return None
 
         # Curate list of all debates.
         self.data = []
