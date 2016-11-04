@@ -1,0 +1,8 @@
+setup.cfg
+setup.py
+presidency/__init__.py
+presidency.egg-info/PKG-INFO
+presidency.egg-info/SOURCES.txt
+presidency.egg-info/dependency_links.txt
+presidency.egg-info/requires.txt
+presidency.egg-info/top_level.txt
