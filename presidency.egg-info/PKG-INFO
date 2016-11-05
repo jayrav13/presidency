@@ -1,12 +1,12 @@
 Metadata-Version: 1.1
 Name: presidency
-Version: 0.13
+Version: 0.14
 Summary: A Python wrapper for data on the American Presidency Project (www.presidency.ucsb.edu)
 Home-page: https://github.com/jayrav13/presidency
 Author: Jay Ravaliya
 Author-email: jayrav13@gmail.com
 License: UNKNOWN
-Download-URL: https://github.com/jayrav13/presidency/tarball/0.13
+Download-URL: https://github.com/jayrav13/presidency/tarball/0.14
 Description: UNKNOWN
 Keywords: wrapper,american,america,presidents,president,presidency
 Platform: UNKNOWN
