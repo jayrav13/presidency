@@ -1,33 +1,25 @@
 from presidency import app, db
 import datetime
 
-class ExecutiveOrder(db.Model):
+class President(db.Model):
 	"""
-	ExecutiveOrder
+	President
 
-	All Executive Orders issued by Presidents of the United States.
+	All Presidents of the United States.
 	"""
 
-	__tablename__ = 'executive_orders'
+	__tablename__ = 'presidents'
 
 	id = db.Column(db.Integer, primary_key=True, nullable=False)
-	pid = db.Column(db.Integer, nullable=False)
-	title = db.Column(db.Text)
-	text = db.Column(db.Text)
-	link = db.Column(db.String(255))
-	document_date = db.Column(db.DateTime)
-	president = db.Column(db.String(255))
+	name = db.Column(db.String(255))
+	number = db.Column(db.Integer, unique=True)
 
 	created_at = db.Column(db.DateTime, default=datetime.datetime.utcnow)
 	updated_at = db.Column(db.DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
 
-	def __init__(self, pid, title = None, text = None, link = None, document_date = None, president = None):
-		self.pid = pid
-		self.title = title
-		self.text = text
-		self.link = link
-		self.document_date = document_date
-		self.president = president
+	def __init__(self, name, number):
+		self.name = name
+		self.number = number
 
 	def to_json(self):
 		output = self.__dict__
@@ -38,31 +30,31 @@ class ExecutiveOrder(db.Model):
 
 		return output
 
-class Proclamation(db.Model):
+class DocumentCategory(db.Model):
+	"""
+	DocumentCategory
+
+	Written, Oral, etc. + subcategories.
 	"""
 
-	"""
-
-	__tablename__ = 'proclamations'
+	__tablename__ = 'document_categories'
 
 	id = db.Column(db.Integer, primary_key=True, nullable=False)
-	pid = db.Column(db.Integer, nullable=False)
-	title = db.Column(db.Text)
-	text = db.Column(db.Text)
-	link = db.Column(db.String(255))
-	document_date = db.Column(db.DateTime)
-	president = db.Column(db.String(255))
+	full_text = db.Column(db.String(255))
+	number = db.Column(db.Integer, unique=True)
+	type = db.Column(db.String(255))
+	category = db.Column(db.String(255), nullable=True)
+	subcategory = db.Column(db.String(255), nullable=True)
 
 	created_at = db.Column(db.DateTime, default=datetime.datetime.utcnow)
 	updated_at = db.Column(db.DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
 
-	def __init__(self, pid, title = None, text = None, link = None, document_date = None, president = None):
-		self.pid = pid
-		self.title = title
-		self.text = text
-		self.link = link
-		self.document_date = document_date
-		self.president = president
+	def __init__(self, full_text, number, type, category = None, subcategory = None):
+		self.full_text = full_text
+		self.number = number
+		self.type = type
+		self.category = category
+		self.subcategory = subcategory
 
 	def to_json(self):
 		output = self.__dict__

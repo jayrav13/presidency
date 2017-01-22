@@ -26,6 +26,16 @@ Populate the newly created environment file. Once complete, you should have ever
 
 ## Collect Data
 
+To set up your database, executive the following commands:
+
+```bash
+python migrate.py db init
+python migrate.py db migrate
+python migrate.py db upgdate
+```
+
+Execute the latter two lines every time a database change is made and you want to migrate those changes.
+
 All of the classes required to collect data are in the `lib/scraper` folder. Launch the Python shell in Terminal:
 
 ```bash
