@@ -1,5 +1,5 @@
 # Imports
-from presidency.models import President, DocumentCategory, db
+from presidency.models import President, DocumentCategory, Document, db
 from lxml import html
 import json
 import requests
@@ -17,12 +17,15 @@ class Scraper:
 		Scrape data.
 		"""
 
-
 		# Retrieve home page on which all data lives.
 		page = requests.get('http://www.presidency.ucsb.edu')
 		tree = html.document_fromstring(page.text)
 
-		# Scrape and store Presidents.
+		"""
+		Presidents
+
+		Retrieve all US Presidents.
+		"""
 		presidents = tree.xpath('//select[@id="select10"]')[0].xpath('option')
 		presidents = [{
 			"name": x.text_content(),
@@ -37,7 +40,12 @@ class Scraper:
 			except:
 				db.session.rollback()
 
-		# Scrape and store Document Categories.
+
+		"""
+		Categories
+
+		Retrieve all possible Document Categories.
+		"""
 		categories = tree.xpath('//select[@id="select12"]')[0].xpath('option')
 		categories = [{
 			"full_text": x.text_content(),
@@ -54,4 +62,46 @@ class Scraper:
 				db.session.commit()
 			except:
 				db.session.rollback()
+
+		"""
+		Documents
+
+		Retrieve all Documents.
+		"""
+		presidents = President.query.all()
+		categories = DocumentCategory.query.all()
+
+		# Iterate through m Presidents * n Categories.
+		for president in presidents:
+			for category in categories:
+
+				response = requests.post('http://www.presidency.ucsb.edu/ws/index.php', data={
+					"pres": president.number,
+					"ty": category.number
+				})
+
+				tree = html.document_fromstring(response.text)
+				rows = []
+				try:
+					rows = tree.xpath('//td[@class="listname"]')[0].getparent().getparent().xpath('tr')
+				except:
+					pass
+
+				for row in rows:
+					data = row.xpath('td')
+					if len(data) == 4 and 'class' in data[0].attrib and data[0].attrib['class'] == 'listdate':
+
+						try:
+							document = Document(int(data[3].xpath('font')[0].xpath('a')[0].attrib['href'].split('?', 1)[1].split('&', 1)[0].split('=', 1)[1]), datetime.datetime.strptime(data[0].text_content().strip(), "%B %d, %Y"), data[3].text_content().strip())
+							president.documents.append(document)
+							category.documents.append(document)
+							db.session.add(document)
+							db.session.commit()
+							print(president.name + " - " + category.type + " - " + document.title)
+						except Exception as e:
+							print(str(e))
+							db.session.rollback()
+					else:
+						pass
+
 

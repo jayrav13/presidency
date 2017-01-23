@@ -17,6 +17,8 @@ class President(db.Model):
 	created_at = db.Column(db.DateTime, default=datetime.datetime.utcnow)
 	updated_at = db.Column(db.DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
 
+	documents = db.relationship('Document', backref=db.backref('presidents'))
+
 	def __init__(self, name, number):
 		self.name = name
 		self.number = number
@@ -49,6 +51,8 @@ class DocumentCategory(db.Model):
 	created_at = db.Column(db.DateTime, default=datetime.datetime.utcnow)
 	updated_at = db.Column(db.DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
 
+	documents = db.relationship('Document', backref=db.backref('document_categories'))
+
 	def __init__(self, full_text, number, type, category = None, subcategory = None):
 		self.full_text = full_text
 		self.number = number
@@ -64,3 +68,28 @@ class DocumentCategory(db.Model):
 		output.pop('_sa_instance_state')
 
 		return output
+
+class Document(db.Model):
+	"""
+	Document
+
+	A President / DocumentCategory Many-to-Many table to outline all documents.
+	"""
+
+	__tablename__ = 'documents'
+
+	id = db.Column(db.Integer, primary_key=True, nullable=False)
+	pid = db.Column(db.Integer, unique=True, nullable=False)
+	document_date = db.Column(db.DateTime)
+	title = db.Column(db.Text)
+
+	president_id = db.Column(db.Integer, db.ForeignKey('presidents.id'), nullable=False)
+	document_category_id = db.Column(db.Integer, db.ForeignKey('document_categories.id'), nullable=False)
+
+	created_at = db.Column(db.DateTime, default=datetime.datetime.utcnow)
+	updated_at = db.Column(db.DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
+
+	def __init__(self, pid, document_date, title):
+		self.pid = pid
+		self.document_date = document_date
+		self.title = title
