@@ -7,6 +7,7 @@ import datetime
 from twython import Twython
 import os
 import time
+import sys
 
 # Establish Base URL.
 base_url = "https://whitehouse.gov/briefing-room/"
@@ -63,6 +64,10 @@ for key, value in pages.iteritems():
 				db.session.rollback()
 				print("Failed to add " + x.title + " successfully: " + str(e))
 
+# Check if this environment should tweet. If not, exit.
+if not os.environ.get('TWEET_ENV') == 'TRUE':
+	sys.exit()
+
 # Retrieve all documents in descending order.
 documents = WhiteHouse.query.filter_by(is_tweeted=False).order_by(WhiteHouse.id.desc())
 
@@ -75,18 +80,27 @@ twitter = Twython(
 )
 
 for document in documents:
-	try:
-		twitter.update_status(status=((document.title if len(document.title) < 120 else document.title[0:119]) + " https://www.whitehouse.gov" + document.uri))
-		document.is_tweeted = True
-		print("Tweeted: " + document.title + " - " + str(document.id))
-	except:
-		try:
-			twitter.update_status(status=("https://www.whitehouse.gov" + document.uri))
-			document.is_tweeted = True
-			print("Tweeted LINK ONLY: " + document.title + " - " + str(document.id))
-		except:
-			document.is_tweeted = False
-			print("Could not be tweeted: " + str(document.id))
+	
+	url = requests.post('https://www.googleapis.com/urlshortener/v1/url?key=' + os.environ.get('GOOGLE_URL_SHORTENER_API_KEY'), json={"longUrl": "https://www.whitehouse.gov" + document.uri})
+	if url.status_code == 200:
+		url = url.json()['id']
+	else:
+		url = "https://www.whitehouse.gov" + document.uri
+
+	"""
+	https://support.twitter.com/articles/78124
+
+	All links are resized to 23 characters. Account for this.
+	"""
+	if(len(document.title) < 116): # Taking out the length of URL + 1 space for a space between the two, does this fit?
+		twitter.update_status(status=(document.title + " " + url))
+	else: # Truncate title and add ellipse.
+		print(document.title[0:113] + "... " + url)
+		twitter.update_status(status=(document.title[0: 113] + "... " + url))
+
+	print("Tweeted: " + document.title + " - " + str(document.id))
+
+	document.is_tweeted = True
 
 	try:
 		db.session.add(document)
