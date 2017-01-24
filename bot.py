@@ -46,14 +46,14 @@ for key, value in pages.iteritems():
 
 		objects = [{
 			# TODO:
-			# "document_date": x.xpath('div[contains(@class, "views-field-created")]')[0].text_content().strip() if len(x.xpath('div[contains(@class, "views-field-created")]')) > 0 else x.xpath('div[contains(@class, "views-field-field-signed-date")]')[0].xpath('div')[0].xpath('span')[0].text_content(),
+			"document_date": x.xpath('div[contains(@class, "views-field-created")]')[0].text_content().strip() if len(x.xpath('div[contains(@class, "views-field-created")]')) > 0 else x.xpath('div')[0].text_content().split(' on ')[1],
 			"title": x.xpath('div[contains(@class, "views-field-title")]')[0].text_content().strip(),
 			"uri": x.xpath('div[contains(@class, "views-field-title")]')[0].xpath('h3')[0].xpath('a')[0].attrib['href'].strip(),
 			"category_slug": key,
 			"category_name": value
 		} for x in tree.xpath('//div[contains(@class, "views-row")]')]
 
-		records = [WhiteHouse(x['title'], x['uri'], x['category_slug'], x['category_name']) for x in objects]
+		records = [WhiteHouse(x['title'], x['uri'], x['category_slug'], x['category_name'], x['document_date']) for x in objects]
 		count = 0
 		for x in records:
 			try:
