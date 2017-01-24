@@ -9,6 +9,9 @@ import os
 import time
 import sys
 
+reload(sys)
+sys.setdefaultencoding("utf-8")
+
 # Establish Base URL.
 base_url = os.environ.get('WHITE_HOUSE_URL') + "/briefing-room/"
 
