@@ -10,7 +10,7 @@ import time
 import sys
 
 # Establish Base URL.
-base_url = "https://whitehouse.gov/briefing-room/"
+base_url = os.environ.get('WHITE_HOUSE_URL') + "/briefing-room/"
 
 # Establish all potential pages.
 pages = {
@@ -22,8 +22,7 @@ pages = {
 	"presidential-actions/proclamations": "Proclamations",
 	"pending-legislation": "Pending Legislation",
 	"signed-legislation": "Signed Legislation",
-	"vetoed-legislation": "Vetoed Legislation",
-	"nominations-and-appointments": "Nominations and Appointments"
+	"vetoed-legislation": "Vetoed Legislation"
 }
 
 # Iterate through all pages:
@@ -55,21 +54,28 @@ for key, value in pages.iteritems():
 		} for x in tree.xpath('//div[contains(@class, "views-row")]')]
 
 		records = [WhiteHouse(x['title'], x['uri'], x['category_slug'], x['category_name']) for x in objects]
+		count = 0
 		for x in records:
 			try:
 				db.session.add(x)
 				db.session.commit()
 				print("Added " + x.title + " successfully.")
+				count += 1
 			except Exception as e:
 				db.session.rollback()
 				print("Failed to add " + x.title + " successfully: " + str(e))
+
+		# If 0 records were added to the database, everything henceforth is old in this topic.
+		# Break, go to next slug.
+		if count == 0:
+			break
 
 # Check if this environment should tweet. If not, exit.
 if not os.environ.get('TWEET_ENV') == 'TRUE':
 	sys.exit()
 
 # Retrieve all documents in descending order.
-documents = WhiteHouse.query.filter_by(is_tweeted=False).order_by(WhiteHouse.id.desc())
+documents = WhiteHouse.query.filter_by(is_tweeted=False).order_by(WhiteHouse.id.asc())
 
 # Set up Twitter bot.
 twitter = Twython(
@@ -81,11 +87,11 @@ twitter = Twython(
 
 for document in documents:
 	
-	url = requests.post('https://www.googleapis.com/urlshortener/v1/url?key=' + os.environ.get('GOOGLE_URL_SHORTENER_API_KEY'), json={"longUrl": "https://www.whitehouse.gov" + document.uri})
+	url = requests.post('https://www.googleapis.com/urlshortener/v1/url?key=' + os.environ.get('GOOGLE_URL_SHORTENER_API_KEY'), json={"longUrl": os.environ.get('WHITE_HOUSE_URL') + document.uri})
 	if url.status_code == 200:
 		url = url.json()['id']
 	else:
-		url = "https://www.whitehouse.gov" + document.uri
+		url = os.environ.get('WHITE_HOUSE_URL') + document.uri
 
 	"""
 	https://support.twitter.com/articles/78124
