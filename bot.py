@@ -75,7 +75,7 @@ if not os.environ.get('TWEET_ENV') == 'TRUE':
 	sys.exit()
 
 # Retrieve all documents in descending order.
-documents = WhiteHouse.query.filter_by(is_tweeted=False).order_by(WhiteHouse.id.asc())
+documents = WhiteHouse.query.filter_by(is_tweeted=False).order_by(WhiteHouse.document_date.asc())
 
 # Set up Twitter bot.
 twitter = Twython(
