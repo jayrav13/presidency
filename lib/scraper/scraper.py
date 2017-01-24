@@ -4,6 +4,8 @@ from lxml import html
 import json
 import requests
 import datetime
+from twython import Twython
+import os
 
 class Scraper:
 
@@ -11,7 +13,7 @@ class Scraper:
 		pass
 
 	@staticmethod
-	def scrape():
+	def scrape(full_scrape=False):
 		"""
 		scrape()
 		Scrape data.
@@ -68,7 +70,15 @@ class Scraper:
 
 		Retrieve all Documents.
 		"""
-		presidents = President.query.all()
+
+		# Check if we're scraping all presidents.
+		presidents = None
+
+		if full_scrape:
+			presidents = President.query.all()
+		else:
+			presidents = [ President.query.order_by(President.number.desc()).first() ]
+
 		categories = DocumentCategory.query.all()
 
 		# Iterate through m Presidents * n Categories.
@@ -97,6 +107,7 @@ class Scraper:
 							category.documents.append(document)
 							db.session.add(document)
 							db.session.commit()
+
 							print(president.name + " - " + category.type + " - " + document.title)
 						except Exception as e:
 							print(str(e))
