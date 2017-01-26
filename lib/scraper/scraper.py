@@ -6,6 +6,9 @@ import requests
 import datetime
 from twython import Twython
 import os
+import sys
+reload(sys)
+sys.setdefaultencoding("utf-8")
 
 class Scraper:
 
@@ -103,8 +106,8 @@ class Scraper:
 
 						try:
 							document = Document(int(data[3].xpath('font')[0].xpath('a')[0].attrib['href'].split('?', 1)[1].split('&', 1)[0].split('=', 1)[1]), datetime.datetime.strptime(data[0].text_content().strip(), "%B %d, %Y"), data[3].text_content().strip())
-							president.documents.append(document)
-							category.documents.append(document)
+							document.president_id = president.id
+							document.document_category_id = category.id
 							db.session.add(document)
 							db.session.commit()
 
@@ -115,4 +118,39 @@ class Scraper:
 					else:
 						pass
 
+	@staticmethod
+	def build():
+		"""
+		Queries, set up variables.
+		"""
+		presidents = President.query.filter(President.number <= 44)
+		categories = DocumentCategory.query.all()
 
+		data = {}
+		sum = 0
+
+		"""
+		Iterate through every president / category combination and add data.
+		"""
+		for president in presidents:
+
+			data[president.name] = {}
+
+			for category in categories:
+
+				# Add key if needed.
+				if category.type not in data[president.name]:
+					data[president.name][category.type] = []
+
+				# Retrieve relevant documents and extend the current array with all documents found in this category.
+				documents = Document.query.filter_by(president_id=president.id).filter_by(document_category_id=category.id).all()
+
+				data[president.name][category.type].extend([{
+					"pid": document.pid,
+					"document_date": str(document.document_date),
+					"title": document.title,
+					"category": category.category,
+					"subcategory": category.subcategory
+				} for document in documents])
+
+		return data

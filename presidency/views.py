@@ -18,17 +18,3 @@ Return HTTP 200 if the server is up and running.
 @app.route('/api/v1/heartbeat')
 def heartbeat():
 	return make_response(jsonify({"success": True}), 200)
-
-@app.route('/api/v1/executive_orders')
-def executive_orders():
-
-	orders = ExecutiveOrder.query.all()
-	orders = [x.to_json() for x in orders]
-	return make_response(jsonify(orders), 200)
-
-@app.route('/api/v1/proclamations')
-def proclamations():
-
-	proclamations = Proclamation.query.all()
-	proclamations = [x.to_json() for x in proclamations]
-	return make_response(jsonify(proclamations), 200)
