@@ -11,44 +11,25 @@ print("Building data structure.")
 from lib.scraper import Scraper
 data = Scraper.build()
 
-print("Data structure built.")
+print("Building data structure complete.")
 
-presidents = data.keys()
-
-if len(sys.argv) == 3:
-	presidents = presidents[ int(sys.argv[1]) : int(sys.argv[2]) ]
-	print([x for x in presidents])
+content = json.load(open('data/results3.json', 'r'))
 
 for president in data.keys():
-
-	print("Starting with President " + president)
-
 	for category in data[president].keys():
-
-		print("Starting with category " + category)
-
 		for i in range(0, len(data[president][category])):
 
-			try:
-				response = requests.get('http://www.presidency.ucsb.edu/ws/index.php?pid=' + str(data[president][category][i]['pid']))
-				tree = html.document_fromstring(response.text)
+			if data[president][category][i]['content'] is not None:
+				continue
 
-				data[president][category][i]['content'] = tree.xpath('//span[@class="displaytext"]')[0].text_content()
-				data[president][category][i]['error'] = None
+			pid = data[president][category][i]['pid']
 
-				print("SUCCESS " + data[president][category][i]['title'])
+			if str(pid) in content:
+				data[president][category][i]['content'] = content[str(pid)]
+				print("Success: " + str(pid))
+			else:
+				print("Not Found: " + str(pid))
 
-			except Exception as e:
-				data[president][category][i]['content'] = None
-				data[president][category][i]['error'] = str(e)
-
-				print("FAIL " + data[president][category][i]['title'])
-
-
-		f = open('data/presidency-' + sys.argv[1] + '-' + sys.argv[2] + '.json', 'w')
-		f.write(json.dumps(data))
-		f.close()
-		print("FILE WRITE")
-
-	print(category)
-	print(president)
+f = open("data/combined.json", "w")
+f.write(json.dumps(data))
+f.close()
