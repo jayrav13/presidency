@@ -6,3 +6,4 @@ __pycache__/
 migrations/
 .DS_Store
 tests/
+data/
