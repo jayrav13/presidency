@@ -33,6 +33,14 @@ class WhiteHouse(db.Model):
 		self.full_url = full_url
 		self.short_url = short_url
 
+	def to_json(self):
+		output = self.__dict__
+		for key in output:
+			if isinstance(output[key], datetime.datetime):
+				output[key] = str(output[key])
+		output.pop('_sa_instance_state')
+
+		return output
 
 class Error(db.Model):
 	"""
