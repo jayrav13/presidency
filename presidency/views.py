@@ -18,3 +18,10 @@ Return HTTP 200 if the server is up and running.
 @app.route('/api/v1/heartbeat')
 def heartbeat():
 	return make_response(jsonify({"success": True}), 200)
+
+@app.route('/api/v1/documents')
+def documents():
+
+	docs = WhiteHouse.query.order_by(WhiteHouse.document_date.desc()).order_by(WhiteHouse.title.asc())
+	docs = [doc.to_json() for doc in docs]
+	return make_response(jsonify({"documents": docs}), 200)
