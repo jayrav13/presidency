@@ -132,15 +132,16 @@ for document in documents:
 	try:
 		tweet = document.title[0 : 113] + ("..." if len(document.title) > 113 else "") + " " + document.short_url
 
-		if os.environ.get('TWEET_ENV') is "TRUE":
+		if os.environ.get('TWEET_ENV') == "TRUE":
 
 			try:
 				twitter.update_status( status=(tweet) )
+				document.is_tweeted = True
 			except Exception as e:
 				db.session.add(Error(str(e)))
 				db.session.commit()
+				continue
 
-		document.is_tweeted = True
 		document.tweet = tweet
 
 		print("Tweeted: " + document.tweet)
@@ -156,7 +157,7 @@ for document in documents:
 			db.session.rollback()
 
 	# Time Delay
-	if os.environ.get('TWEET_ENV') is "TRUE":
+	if os.environ.get('TWEET_ENV') == "TRUE":
 		time.sleep(10)
 
 
