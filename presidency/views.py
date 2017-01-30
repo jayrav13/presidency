@@ -28,7 +28,7 @@ def rss_feed():
 
 	feed = AtomFeed('White House Briefing Room Releases', feed_url=request.url, url=request.url_root)
 
-	documents = WhiteHouse.query.all()
+	documents = WhiteHouse.query.order_by(WhiteHouse.document_date.desc())
 
 	for document in documents:
 
