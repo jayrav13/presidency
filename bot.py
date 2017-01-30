@@ -111,11 +111,10 @@ for key, value in pages.iteritems():
 		if count == 0:
 			break
 
-if os.environ.get('TWEET_ENV') is not "TRUE":
-	sys.exit()
-
 # Retrieve all documents in descending order.
 documents = WhiteHouse.query.filter_by(is_tweeted=False).order_by(WhiteHouse.document_date.asc())
+
+print("New documents detected: %d" % (documents.count()))
 
 # Set up Twitter bot.
 twitter = Twython(
@@ -129,8 +128,19 @@ twitter = Twython(
 for document in documents:
 
 	try:
-		tweet = document.title[0 : 113] + ("..." if len(document.title) < 113 else "") + " " + document.short_url
-		twitter.update_status( status=(tweet) )
+		tweet = document.title[0 : 113] + ("..." if len(document.title) > 113 else "") + " " + document.short_url
+
+		if os.environ.get('TWEET_ENV') is "TRUE":
+			twitter.update_status( status=(tweet) )
+
+		document.is_tweeted = True
+		document.tweet = tweet
+
+		print("Tweeted: " + document.tweet)
+
+		db.session.add(document)
+		db.session.commit()
+
 	except Exception as e:
 		try:
 			db.session.add(Error(str(e)))

@@ -17,6 +17,7 @@ class WhiteHouse(db.Model):
 	category_slug = db.Column(db.String(255), nullable=True)
 	category_name = db.Column(db.String(255), nullable=True)
 	document_date = db.Column(db.DateTime, nullable=True)
+	tweet = db.Column(db.String, nullable=True)
 
 	full_url = db.Column(db.String, nullable=True)
 	short_url = db.Column(db.String, nullable=True)
@@ -24,7 +25,7 @@ class WhiteHouse(db.Model):
 	created_at = db.Column(db.DateTime, default=datetime.datetime.utcnow)
 	updated_at = db.Column(db.DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
 
-	def __init__(self, title, uri, category_slug=None, category_name=None, document_date=None, full_url=None, short_url=None):
+	def __init__(self, title, uri, category_slug=None, category_name=None, document_date=None, full_url=None, short_url=None, tweet=None):
 		self.title = title
 		self.uri = uri
 		self.category_slug = category_slug
@@ -32,6 +33,7 @@ class WhiteHouse(db.Model):
 		self.document_date = datetime.datetime.strptime(document_date, "%B %d, %Y") if document_date != None else document_date
 		self.full_url = full_url
 		self.short_url = short_url
+		self.tweet = tweet
 
 	def to_json(self):
 		output = self.__dict__
