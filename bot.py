@@ -28,9 +28,11 @@ pages = {
 	"presidential-actions/executive-orders": "Executive Orders",
 	"presidential-actions/presidential-memoranda": "Presidential Memoranda",
 	"presidential-actions/proclamations": "Proclamations",
+	"presidential-actions/related-omb-material": "Related OMB Material",
 	"pending-legislation": "Pending Legislation",
 	"signed-legislation": "Signed Legislation",
-	"vetoed-legislation": "Vetoed Legislation"
+	"vetoed-legislation": "Vetoed Legislation",
+	# "briefing-room/statements-administration-policy": "Statements of Administration Policy"
 }
 
 # Scrape each page.
@@ -147,5 +149,9 @@ for document in documents:
 			db.session.commit()
 		except:
 			db.session.rollback()
+
+	# Time Delay
+	if os.environ.get('TWEET_ENV') is "TRUE":
+		time.sleep(10)
 
 
