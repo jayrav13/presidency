@@ -133,7 +133,12 @@ for document in documents:
 		tweet = document.title[0 : 113] + ("..." if len(document.title) > 113 else "") + " " + document.short_url
 
 		if os.environ.get('TWEET_ENV') is "TRUE":
-			twitter.update_status( status=(tweet) )
+
+			try:
+				twitter.update_status( status=(tweet) )
+			except Exception as e:
+				db.session.add(Error(str(e)))
+				db.session.commit()
 
 		document.is_tweeted = True
 		document.tweet = tweet
