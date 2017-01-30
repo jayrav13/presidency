@@ -32,7 +32,7 @@ pages = {
 	"pending-legislation": "Pending Legislation",
 	"signed-legislation": "Signed Legislation",
 	"vetoed-legislation": "Vetoed Legislation",
-	# "briefing-room/statements-administration-policy": "Statements of Administration Policy"
+	"statements-administration-policy": "Statements of Administration Policy"
 }
 
 # Scrape each page.
