@@ -51,7 +51,7 @@ for key, value in pages.iteritems():
 	for i in range(0, pagecount):
 
 		# Use ?page= parameter to scrape, starting with page 0.
-		response = requests.get(base_url + key + "?term_node_tid_depth=&page=" + str(i))
+		response = requests.get(base_url + key + "?&page=" + str(i) + "&term_node_tid_depth=")
 		tree = html.document_fromstring(response.text)
 
 		# Build the resulting dictionary objects for each document on that page.
