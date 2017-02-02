@@ -18,21 +18,21 @@ reload(sys)
 sys.setdefaultencoding("utf-8")
 
 # Establish Base URL.
-base_url = os.environ.get('WHITE_HOUSE_URL') + "/briefing-room/"
+base_url = os.environ.get('WHITE_HOUSE_URL') + ""
 
 # Establish all pages to scrape.
 pages = {
-	"speeches-and-remarks": "Speeches and Remarks",
-	"press-briefings": "Press Briefings",
-	"statements-and-releases": "Statements and Releases",
-	"presidential-actions/executive-orders": "Executive Orders",
-	"presidential-actions/presidential-memoranda": "Presidential Memoranda",
-	"presidential-actions/proclamations": "Proclamations",
-	"presidential-actions/related-omb-material": "Related OMB Material",
-	"pending-legislation": "Pending Legislation",
-	"signed-legislation": "Signed Legislation",
-	"vetoed-legislation": "Vetoed Legislation",
-	"statements-administration-policy": "Statements of Administration Policy"
+	"/briefing-room/speeches-and-remarks": "Speeches and Remarks",
+	"/briefing-room/press-briefings": "Press Briefings",
+	"/briefing-room/statements-and-releases": "Statements and Releases",
+	"/briefing-room/presidential-actions/executive-orders": "Executive Orders",
+	"/briefing-room/presidential-actions/presidential-memoranda": "Presidential Memoranda",
+	"/briefing-room/presidential-actions/proclamations": "Proclamations",
+	"/briefing-room/presidential-actions/related-omb-material": "Related OMB Material",
+	"/briefing-room/pending-legislation": "Pending Legislation",
+	"/briefing-room/signed-legislation": "Signed Legislation",
+	"/briefing-room/vetoed-legislation": "Vetoed Legislation",
+	"/briefing-room/statements-administration-policy": "Statements of Administration Policy"
 }
 
 # Scrape each page.
@@ -41,17 +41,19 @@ for key, value in pages.iteritems():
 	print("Scanning " + value)
 
 	# Make request and transform into tree.
-	response = requests.get(base_url + key)
+	page_url = base_url + key
+	response = requests.get(page_url)
 	tree = html.document_fromstring(response.text)
 
 	# Deterimine number of total pages.
 	pagecount = int(tree.xpath('//li[@class="pager-current"]')[0].text_content().split(' of ')[1]) if len(tree.xpath('//li[@class="pager-current"]')) > 0 else 1
-	print(pagecount)
+
 	# Keep iterating through pages until you reach a page that has been fully scraped. Then stop.
 	for i in range(0, pagecount):
 
 		# Use ?page= parameter to scrape, starting with page 0.
-		response = requests.get(base_url + key + "?&page=" + str(i) + "&term_node_tid_depth=")
+		response = requests.get(page_url)
+		print("PAGE URL: " + page_url)
 		tree = html.document_fromstring(response.text)
 
 		# Build the resulting dictionary objects for each document on that page.
@@ -78,7 +80,7 @@ for key, value in pages.iteritems():
 		records = [WhiteHouse(x['title'], x['uri'], x['category_slug'], x['category_name'], x['document_date'], x['full_url'], x['short_url']) for x in objects]
 		
 		# Track number of records successfully added. Those not added will be duplicates.
-		count = 0
+		record_counter = 0
 
 		# Iterate through records.
 		for x in records:
@@ -89,7 +91,7 @@ for key, value in pages.iteritems():
 				db.session.add(x)
 				db.session.commit()
 
-				count += 1
+				record_counter = record_counter + 1
 				
 				print("Added " + x.title + " successfully.")
 
@@ -110,8 +112,14 @@ for key, value in pages.iteritems():
 
 		# If 0 records were added to the database, everything henceforth is old in this topic.
 		# Break, go to next slug.
-		if count == 0:
-			break
+
+		pager = tree.xpath('//li[contains(@class, "pager-next")]')
+		try:
+			print(pager[0].xpath('a')[0].attrib['href'])
+			page_url = base_url + pager[0].xpath('a')[0].attrib['href']
+		except:
+			pass
+
 
 # Retrieve all documents in descending order.
 documents = WhiteHouse.query.filter_by(is_tweeted=False).order_by(WhiteHouse.document_date.asc())
