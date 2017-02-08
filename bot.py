@@ -102,11 +102,13 @@ for key, value in pages.iteritems():
 				db.session.rollback()
 
 				# Try to save an error message.
+				"""
 				try:
 					db.session.add(Error(str(e)))
 					db.session.commit()
 				except:
 					db.session.rollback()
+				"""
 
 				print("Failed to add " + x.title + " successfully: " + str(e))
 
@@ -146,8 +148,10 @@ for document in documents:
 				twitter.update_status( status=(tweet) )
 				document.is_tweeted = True
 			except Exception as e:
+				"""
 				db.session.add(Error(str(e)))
 				db.session.commit()
+				"""
 				continue
 
 		document.tweet = tweet
@@ -158,11 +162,14 @@ for document in documents:
 		db.session.commit()
 
 	except Exception as e:
+		"""
 		try:
 			db.session.add(Error(str(e)))
 			db.session.commit()
 		except:
 			db.session.rollback()
+		"""
+		pass
 
 	# Time Delay
 	if os.environ.get('TWEET_ENV') == "TRUE":
