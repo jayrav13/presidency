@@ -1,4 +1,9 @@
-.DS_Store
+.env
 venv/
 *.pyc
-test/
+__pycache__/
+*.db
+migrations/
+.DS_Store
+tests/
+data/
