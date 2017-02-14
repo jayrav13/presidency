@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-from debates import Debate, Debates
-from executive_orders import Year, Order, Orders
-=======
 """
 __init__
 
@@ -30,4 +26,3 @@ auth = HTTPBasicAuth()
 json = FlaskJSON(app)
 
 from presidency import views, models
->>>>>>> 1e0368128bfeb26f485081a1ac90049118ff556a
