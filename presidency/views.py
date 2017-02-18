@@ -6,6 +6,7 @@ from .models import *
 from datetime import datetime
 from requests.auth import HTTPBasicAuth
 from functools import wraps
+from lib.appointments import Appointments
 import os
 import requests
 import json
@@ -56,3 +57,9 @@ def documents():
 	docs = WhiteHouse.query.order_by(WhiteHouse.document_date.desc()).order_by(WhiteHouse.title.asc())
 	docs = [doc.to_json() for doc in docs]
 	return make_response(jsonify({"documents": docs}), 200)
+
+@app.route('/api/v1/appointments')
+def appointments():
+
+	appointments = Appointments()
+	return make_response(jsonify(appointments.scrape()), 200)
