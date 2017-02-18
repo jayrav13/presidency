@@ -23,10 +23,13 @@ class Appointments:
 		self._tree = html.document_fromstring(self._response.text)
 
 	def scrape(self):
-		"""
-		scrape()
+		return {'political': self._political()}
 
-		Public function that returns JSON data.
+	def _political(self):
+		"""
+		_political()
+
+		Public function that returns JSON data for political appointments.
 		"""
 
 		# Get the editable table 
@@ -77,9 +80,25 @@ class Appointments:
 				appointee['details']['senate']['is_confirmation_required'] = '(without Senate confirmation)' not in data[2].text_content()
 				appointee['details']['senate']['is_confirmed'] = 'Confirmed by Senate' in data[2].text_content() if appointee['details']['senate']['is_confirmation_required'] else None
 
+				breakdown = data[2].text_content().split('\n')
+				print breakdown
+				if appointee['details']['senate']['is_confirmed']:
+
+					appointee['details']['senate']['vote'] = {}
+					if len(breakdown) >= 2:
+						vote = self._extract_vote(breakdown[1])
+
+						if len(vote) == 2:
+							appointee['details']['senate']['vote']['aye'] = vote[0]
+							appointee['details']['senate']['vote']['nay'] = vote[1]
+							appointee['details']['senate']['vote']['dissent'] = []
+
+							if len(breakdown) >= 3:
+								appointee['details']['senate']['vote']['dissent'] = self._extract_dissent(breakdown[2], data[2])
+
 				organization.append(appointee)
 
-		return {"political": output}
+		return output
 
 	def _extract_image(self, element):
 		"""
@@ -116,3 +135,53 @@ class Appointments:
 			return None
 
 		return headline[0].text_content()
+
+	def _extract_vote(self, string):
+		"""
+		_extract_vote()
+
+		Given a string, extract the vote count from it.
+		"""
+
+		# Make sure that this person was confirmed by the Senate. Should be.
+		if 'Confirmed by Senate' not in string:
+			return None
+
+		# Split the string by the first parenthasis at beginning of vote count.
+		split = string.split('(')
+
+		if len(split) != 2:
+			return None
+
+		# Swap out second parenthasis and then try to split.
+		vote = split[1].replace(')', '').split('-')
+
+		# Handle UTF-8 dash.
+		if len(vote) == 1:
+			vote = vote[0].encode('utf-8').split('\xe2\x80\x93')
+
+		# Final check.
+		if len(vote) != 2:
+			# Something went wrong.
+			return None
+
+		# Return vote count.
+		try:
+			vote = [int(x.replace('*', '')) for x in vote]
+			return vote
+		except:
+			return None
+
+	def _extract_dissent(self, string, element):
+
+		common_phrase = 'Dissenting votes:'
+
+		if common_phrase not in string:
+			return None
+
+		small = element.xpath('small')
+		if len(small) != 1:
+			return None
+
+		a = small[0].xpath('a')
+		return [x.attrib['title'] for x in a if 'title' in x.attrib]
