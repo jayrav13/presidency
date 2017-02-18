@@ -10,6 +10,8 @@ import re
 reload(sys)
 sys.setdefaultencoding("utf-8")
 
+
+from lib.senators import Senators
 """
 Appointments
 
@@ -21,6 +23,10 @@ class Appointments:
 		self._base_url = 'https://en.wikipedia.org'
 		self._response = requests.get(self._base_url + '/wiki/Political_appointments_of_Donald_Trump')
 		self._tree = html.document_fromstring(self._response.text)
+
+		self._congress_url = '/wiki/List_of_United_States_Senators_in_the_115th_Congress_by_seniority'
+		self._senators_scraper = Senators(self._congress_url)
+		self._senators = self._senators_scraper.scrape()
 
 	def scrape(self):
 		return {'political': self._political()}
@@ -184,4 +190,12 @@ class Appointments:
 			return None
 
 		a = small[0].xpath('a')
-		return [x.attrib['title'] for x in a if 'title' in x.attrib]
+
+		senators = []
+
+		for senator in a:
+			if 'href' in senator.attrib and senator.attrib['href'] in self._senators:
+				senators.append(self._senators[senator.attrib['href']])
+			else:
+				senators.append({"name": senator.text_content() })
+		return senators
