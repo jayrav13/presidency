@@ -53,7 +53,7 @@ class Appointments:
 					# Reset organization array.
 					build = {
 						"name": headline,
-						"data": organization
+						"appointees": organization
 					}
 					output.append(build)
 					organization = []
