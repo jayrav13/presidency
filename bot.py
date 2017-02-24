@@ -29,9 +29,9 @@ pages = {
 	"/briefing-room/presidential-actions/presidential-memoranda": "Presidential Memoranda",
 	"/briefing-room/presidential-actions/proclamations": "Proclamations",
 	"/briefing-room/presidential-actions/related-omb-material": "Related OMB Material",
-	"/briefing-room/pending-legislation": "Pending Legislation",
-	"/briefing-room/signed-legislation": "Signed Legislation",
-	"/briefing-room/vetoed-legislation": "Vetoed Legislation",
+	# "/briefing-room/pending-legislation": "Pending Legislation",
+	# "/briefing-room/signed-legislation": "Signed Legislation",
+	# "/briefing-room/vetoed-legislation": "Vetoed Legislation",
 	"/briefing-room/statements-administration-policy": "Statements of Administration Policy"
 }
 
@@ -78,7 +78,7 @@ for key, value in pages.iteritems():
 
 		# Create database objects for all of these.
 		records = [WhiteHouse(x['title'], x['uri'], x['category_slug'], x['category_name'], x['document_date'], x['full_url'], x['short_url']) for x in objects]
-		
+
 		# Track number of records successfully added. Those not added will be duplicates.
 		record_counter = 0
 
