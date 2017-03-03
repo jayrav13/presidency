@@ -75,7 +75,7 @@ class Appointments:
 
 				appointee = {}
 				appointee['position'] = data[0].text_content().strip('\n')
-				appointee['appointee'] = None if len(data[1].text_content().strip('\n')) == 0 else data[1].text_content().strip('\n')
+				appointee['appointee'] = None if len(data[1].text_content().strip('\n')) == 0 else data[1].text_content().strip('\n').split('[')[0]
 
 				appointee['assets'] = {}
 				appointee['assets']['seal'] = self._extract_image(data[0])
