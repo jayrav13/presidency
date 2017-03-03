@@ -94,7 +94,7 @@ class Appointments:
 					if len(breakdown) >= 2:
 						vote = self._extract_vote(breakdown[1])
 
-						if len(vote) == 2:
+						if vote is not None and len(vote) == 2:
 							appointee['details']['senate']['vote']['aye'] = vote[0]
 							appointee['details']['senate']['vote']['nay'] = vote[1]
 							appointee['details']['senate']['vote']['dissent'] = []
