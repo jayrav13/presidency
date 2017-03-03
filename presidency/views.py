@@ -42,6 +42,82 @@ def rss_feed():
 
 	return feed.get_response()
 
+@app.route('/appointments')
+def appointments_ui():
+
+	# Appointments
+	appointments = Appointments()
+	data = appointments.scrape()
+
+	counts = {
+		"total": 0,
+		"confirmation": {
+			"required": {
+				"total": 0,
+				"appointed": 0,
+				"confirmed": 0
+			},
+			"not_required": {
+				"total": 0,
+				"confirmed": 0
+			}
+		},
+		"secretary": {
+			"total": 0,
+			"appointed": 0,
+			"confirmed": 0
+		},
+		"deputy_secretary": {
+			"total": 0,
+			"appointed": 0,
+			"confirmed": 0
+		}
+	}
+
+	# Iterate through all departments for which political appointments are made.
+	for department in data['political']:
+
+		# Iterate through appointees of each department.
+		for appointee in department['appointees']:
+
+			# Count total number of appointees.
+			counts['total'] += 1
+
+			# Split into required vs non required confirmation
+			if appointee['details']['senate']['is_confirmation_required']:
+				counts['confirmation']['required']['total'] += 1
+				if appointee['appointee'] is not None:
+					counts['confirmation']['required']['appointed'] += 1
+				if appointee['details']['senate']['is_confirmed']:
+					counts['confirmation']['required']['confirmed'] += 1
+
+				if appointee['details']['position']['is_secretary']:
+					counts['secretary']['total'] += 1
+					if appointee['appointee'] is not None:
+						counts['secretary']['appointed'] += 1
+					if appointee['details']['senate']['is_confirmed']:
+						counts['secretary']['confirmed'] += 1
+
+				if appointee['details']['position']['is_deputy_secretary']:
+					counts['deputy_secretary']['total'] += 1
+					if appointee['appointee'] is not None:
+						counts['deputy_secretary']['appointed'] += 1
+					if appointee['details']['senate']['is_confirmed']:
+						counts['deputy_secretary']['confirmed'] += 1
+
+			else:
+				counts['confirmation']['not_required']['total'] += 1
+				if appointee['appointee'] is not None:
+					counts['confirmation']['not_required']['confirmed'] += 1
+			
+
+	print counts
+
+	return render_template('appointments.html', 
+		appointments=appointments,
+		counts=counts
+	)
+
 """
 /api/v1/heartbeat
 

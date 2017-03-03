@@ -14,8 +14,7 @@ class Cabinet:
 	def __init__(self):
 		pass
 
-	@staticmethod
-	def scrape():
+	def scrape(self):
 
 		# Return Wikipedia page and turn into a tree.
 		base_url = 'https://en.wikipedia.org'
@@ -35,14 +34,14 @@ class Cabinet:
 
 			# Only look at this if we're looking at Cabinet members.
 			if len(data) == 3 and data[0].tag == 'td':
-
+				print(data[1].xpath('div/a'))
 				# Clean up data with strip.
 				obj.append({
 					"title": [x for x in data[0].text_content().split('\n') if x != ''][0],
 					"seal": 'https:' + data[0].xpath('a/img')[0].attrib['src'],
 					"img": 'https:' + data[1].xpath('a/img')[0].attrib['src'],
 					"name": [x for x in data[1].text_content().split('\n') if x != ''][0],
-					"details": base_url + data[1].xpath('div/a')[0].attrib['href'],
+					"details": base_url + data[1].xpath('div/a')[0].attrib['href'] if len(data[1].xpath('div/a')) > 0 else None,
 					"is_acting": (len([x for x in data[1].text_content().split('\n') if x != '']) > 1 and [x for x in data[1].text_content().split('\n') if x != ''][1] == 'Acting'),
 					"date_appointed": data[2].text_content(),
 				})

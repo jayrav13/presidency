@@ -82,6 +82,12 @@ class Appointments:
 				appointee['assets']['img'] = self._extract_image(data[1])
 
 				appointee['details'] = {}
+
+				appointee['details']['position'] = {}
+				appointee['details']['position']['is_secretary'] = 'Secretary' in appointee['position'].split(' ')[0]
+				appointee['details']['position']['is_deputy_secretary'] = 'Deputy' in appointee['position'].split(' ')[0] and 'Secretary' in appointee['position'].split(' ')[1]
+				appointee['details']['position']['is_under_secretary'] = 'Under' in appointee['position'].split(' ')[0] and 'Secretary' in appointee['position'].split(' ')[1]
+
 				appointee['details']['senate'] = {}
 				appointee['details']['senate']['is_confirmation_required'] = '(without Senate confirmation)' not in data[2].text_content()
 				appointee['details']['senate']['is_confirmed'] = 'Confirmed by Senate' in data[2].text_content() if appointee['details']['senate']['is_confirmation_required'] else None
