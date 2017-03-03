@@ -46,14 +46,15 @@ class Senators:
 				continue
 
 			# Retrieve the unique identifier by Senator, the URL.
-			url = data[0].xpath('a')[0].attrib['href'].replace(',', '')
+			# print data[0].xpath('span')[1].xpath('span')[0].xpath('a')
+			url = data[0].xpath('span')[1].xpath('span')[0].xpath('a')[0].attrib['href'].replace(',', '')
 
 			# Simplify with text only content.
 			simple = [x.text_content() for x in data]
 
 			# Add Senator to dict.
 			senators[url] = {
-				"name": simple[0],
+				"name": data[0].xpath('span')[1].xpath('span')[0].xpath('a')[0].text_content(),
 				"party": simple[1],
 				"state": simple[2],
 				"url": url,
