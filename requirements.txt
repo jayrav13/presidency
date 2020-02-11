@@ -1,6 +1,6 @@
 alembic==0.8.9
 click==6.6
-Django==1.10.4
+Django==1.11.28
 dotenv==0.0.5
 Flask==0.12
 Flask-HTTPAuth==3.2.1
